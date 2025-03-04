@@ -36,3 +36,23 @@ function truncateText(text, maxLength) {
 function viewFullPost(index) {
     window.location.href = `fullpost.html?index=${index}`;
 }
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
+
+<script>
+  // ✅ Firebase Config (Replace with your own from Firebase Console)
+  const firebaseConfig = {
+  apiKey: "AIzaSyAYqvRzV-wlaVPU8j1YolZLyH36PCvlT_0",
+  authDomain: "tweaks-ph-login-server.firebaseapp.com",
+  projectId: "tweaks-ph-login-server",
+  storageBucket: "tweaks-ph-login-server.firebasestorage.app",
+  messagingSenderId: "970111986272",
+  appId: "1:970111986272:web:fa1d7b107608b094a67105"
+};
+
+  // ✅ Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+</script>
