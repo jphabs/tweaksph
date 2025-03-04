@@ -6,10 +6,16 @@
     <title>TweaksPH Blog</title>
     <script src="https://cdn.tailwindcss.com"></script> <!-- Corrected CDN -->
 </head>
-<body class="bg-gray-100 p-6">
-    <div class="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-lg">
-        <h1 class="text-3xl font-bold mb-4 text-center">📢 Latest Blog Posts</h1>
-        <div id="blog-posts" class="space-y-4 text-center">Loading...</div>
+<body class="bg-gray-100 p-6 flex justify-center items-center min-h-screen">
+
+    <div class="max-w-2xl w-full bg-white p-6 rounded-lg shadow-lg">
+    	<h1 class="text-3xl font-bold mb-4 text-center">TweaksPH Blog</h1>
+        <h2 class="text-3xl font-bold mt-8 mb-4 text-center">📢 Latest Blog Posts</h2>
+        
+        <!-- Blog Posts Container -->
+        <div id="blog-posts" class="space-y-4">
+            <div class="text-center text-gray-500">⏳ Loading posts...</div> <!-- Better loading message -->
+        </div>
     </div>
 
     <script src="script.js"></script> 

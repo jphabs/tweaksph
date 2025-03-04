@@ -11,9 +11,10 @@ function loadPosts() {
         output = `<p class="text-gray-500">No blog posts available.</p>`;
     } else {
         posts.forEach((post) => {
-            if (post.status === "published") { // Only show published posts
+            if (post.status === "published") {
                 output += `
                     <div class="post p-4 border rounded bg-gray-50 shadow">
+                        ${post.image ? `<img src="${post.image}" class="w-full h-48 object-cover rounded mb-2">` : ""}
                         <h2 class="text-xl font-bold text-gray-800">${post.title}</h2>
                         <p class="text-gray-600">${post.content}</p>
                     </div>

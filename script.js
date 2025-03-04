@@ -7,16 +7,33 @@ document.addEventListener("DOMContentLoaded", function () {
 function savePost(status = "published") {
     let title = document.getElementById("title").value;
     let content = document.getElementById("content").value;
-    
+    let imageInput = document.getElementById("image");
+    let image = "";
+
     if (!title || !content) {
-        alert("Title and content required!");
+        alert("Title and content are required!");
         return;
     }
 
+    // Convert image to base64
+    if (imageInput.files.length > 0) {
+        let reader = new FileReader();
+        reader.readAsDataURL(imageInput.files[0]);
+        reader.onload = function () {
+            image = reader.result;
+            storePost(title, content, image, status);
+        };
+    } else {
+        storePost(title, content, image, status);
+    }
+}
+
+// ✅ Store Post in LocalStorage
+function storePost(title, content, image, status) {
     let posts = JSON.parse(localStorage.getItem("posts")) || [];
-    posts.push({ title, content, status });
+    posts.push({ title, content, image, status });
     localStorage.setItem("posts", JSON.stringify(posts));
-    
+
     alert(status === "draft" ? "Draft saved!" : "Post published!");
     location.reload();
 }
@@ -28,7 +45,8 @@ function loadAdminPosts() {
 
     posts.forEach((post, index) => {
         output += `
-            <div class="post p-4 border rounded">
+            <div class="post p-4 border rounded bg-gray-50 shadow">
+                ${post.image ? `<img src="${post.image}" class="w-full h-40 object-cover rounded mb-2">` : ""}
                 <h2 class="text-lg font-bold">${post.title}</h2>
                 <p class="text-gray-700">${post.content}</p>
                 <p class="text-sm text-gray-500">Status: ${post.status}</p>
@@ -55,9 +73,9 @@ function editPost(index) {
 function updatePost(index) {
     let title = document.getElementById("title").value;
     let content = document.getElementById("content").value;
-
     let posts = JSON.parse(localStorage.getItem("posts")) || [];
-    posts[index] = { title, content, status: "published" };
+
+    posts[index] = { title, content, image: posts[index].image, status: "published" };
     localStorage.setItem("posts", JSON.stringify(posts));
 
     alert("Post updated!");
