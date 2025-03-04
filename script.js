@@ -8,24 +8,40 @@ function savePost(status = "published") {
     let title = document.getElementById("title").value;
     let content = document.getElementById("content").value;
     let imageInput = document.getElementById("image");
-    let image = "";
 
     if (!title || !content) {
         alert("Title and content are required!");
         return;
     }
 
-    // Convert image to base64
     if (imageInput.files.length > 0) {
-        let reader = new FileReader();
-        reader.readAsDataURL(imageInput.files[0]);
-        reader.onload = function () {
-            image = reader.result;
-            storePost(title, content, image, status);
-        };
+        let file = imageInput.files[0];
+        convertToWebP(file).then((webpData) => {
+            storePost(title, content, webpData, status);
+        });
     } else {
-        storePost(title, content, image, status);
+        storePost(title, content, "", status);
     }
+}
+
+// ✅ Convert Image to WebP (Reduces Size)
+function convertToWebP(file) {
+    return new Promise((resolve) => {
+        let reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = function (event) {
+            let img = new Image();
+            img.src = event.target.result;
+            img.onload = function () {
+                let canvas = document.createElement("canvas");
+                let ctx = canvas.getContext("2d");
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+                resolve(canvas.toDataURL("image/webp", 0.8)); // 80% quality
+            };
+        };
+    });
 }
 
 // ✅ Store Post in LocalStorage
@@ -41,7 +57,7 @@ function storePost(title, content, image, status) {
 // ✅ Load Posts in Admin Panel
 function loadAdminPosts() {
     let posts = JSON.parse(localStorage.getItem("posts")) || [];
-    let output = "";
+    let output = posts.length === 0 ? `<p class="text-center text-gray-500">No posts yet.</p>` : "";
 
     posts.forEach((post, index) => {
         output += `
@@ -50,8 +66,10 @@ function loadAdminPosts() {
                 <h2 class="text-lg font-bold">${post.title}</h2>
                 <p class="text-gray-700">${post.content}</p>
                 <p class="text-sm text-gray-500">Status: ${post.status}</p>
-                <button onclick="editPost(${index})" class="bg-yellow-500 text-white px-2 py-1 rounded">Edit</button>
-                <button onclick="deletePost(${index})" class="bg-red-500 text-white px-2 py-1 rounded">Delete</button>
+                <div class="flex space-x-2 mt-2">
+                    <button onclick="editPost(${index})" class="bg-yellow-500 text-white px-2 py-1 rounded">Edit</button>
+                    <button onclick="deletePost(${index})" class="bg-red-500 text-white px-2 py-1 rounded">Delete</button>
+                </div>
             </div>`;
     });
 
@@ -66,7 +84,9 @@ function editPost(index) {
     document.getElementById("title").value = post.title;
     document.getElementById("content").value = post.content;
 
-    document.getElementById("saveButton").innerHTML = `<button onclick="updatePost(${index})" class="w-full bg-green-500 text-white p-2 rounded">Update Post</button>`;
+    // Preserve Image
+    document.getElementById("saveButton").innerHTML = `
+        <button onclick="updatePost(${index})" class="w-full bg-green-500 text-white p-2 rounded">Update Post</button>`;
 }
 
 // ✅ Update Post
