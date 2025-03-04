@@ -1,6 +1,13 @@
+document.addEventListener("DOMContentLoaded", function () {
+    checkAuth();
+    loadAdminPosts();
+});
+
+// ✅ Save New Post (Published or Draft)
 function savePost(status = "published") {
     let title = document.getElementById("title").value;
     let content = document.getElementById("content").value;
+    
     if (!title || !content) {
         alert("Title and content required!");
         return;
@@ -9,25 +16,31 @@ function savePost(status = "published") {
     let posts = JSON.parse(localStorage.getItem("posts")) || [];
     posts.push({ title, content, status });
     localStorage.setItem("posts", JSON.stringify(posts));
+    
     alert(status === "draft" ? "Draft saved!" : "Post published!");
     location.reload();
 }
 
+// ✅ Load Posts in Admin Panel
 function loadAdminPosts() {
     let posts = JSON.parse(localStorage.getItem("posts")) || [];
     let output = "";
+
     posts.forEach((post, index) => {
-        output += `<div class="post p-4 border rounded">
-            <h2 class="text-lg font-bold">${post.title}</h2>
-            <p class="text-gray-700">${post.content}</p>
-            <p class="text-sm text-gray-500">Status: ${post.status}</p>
-            <button onclick="editPost(${index})" class="bg-yellow-500 text-white px-2 py-1 rounded">Edit</button>
-            <button onclick="deletePost(${index})" class="bg-red-500 text-white px-2 py-1 rounded">Delete</button>
-        </div>`;
+        output += `
+            <div class="post p-4 border rounded">
+                <h2 class="text-lg font-bold">${post.title}</h2>
+                <p class="text-gray-700">${post.content}</p>
+                <p class="text-sm text-gray-500">Status: ${post.status}</p>
+                <button onclick="editPost(${index})" class="bg-yellow-500 text-white px-2 py-1 rounded">Edit</button>
+                <button onclick="deletePost(${index})" class="bg-red-500 text-white px-2 py-1 rounded">Delete</button>
+            </div>`;
     });
+
     document.getElementById("admin-posts").innerHTML = output;
 }
 
+// ✅ Edit Post
 function editPost(index) {
     let posts = JSON.parse(localStorage.getItem("posts")) || [];
     let post = posts[index];
@@ -38,6 +51,7 @@ function editPost(index) {
     document.getElementById("saveButton").innerHTML = `<button onclick="updatePost(${index})" class="w-full bg-green-500 text-white p-2 rounded">Update Post</button>`;
 }
 
+// ✅ Update Post
 function updatePost(index) {
     let title = document.getElementById("title").value;
     let content = document.getElementById("content").value;
@@ -50,6 +64,17 @@ function updatePost(index) {
     location.reload();
 }
 
+// ✅ Delete Post
+function deletePost(index) {
+    let posts = JSON.parse(localStorage.getItem("posts")) || [];
+    posts.splice(index, 1);
+    localStorage.setItem("posts", JSON.stringify(posts));
+
+    alert("Post deleted!");
+    location.reload();
+}
+
+// ✅ Admin Login System
 function checkLogin() {
     let password = document.getElementById("password").value;
     if (password === "admin123") {
@@ -71,5 +96,3 @@ function logout() {
     localStorage.removeItem("isLoggedIn");
     location.reload();
 }
-
-document.addEventListener("DOMContentLoaded", checkAuth);
