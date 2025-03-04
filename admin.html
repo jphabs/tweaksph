@@ -3,17 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="style.css">
+    <title>TweaksPH Blog</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <h1>📝 Blog Admin</h1>
-    <input type="text" id="title" placeholder="Blog Title">
-    <textarea id="content" placeholder="Blog Content"></textarea>
-    <button onclick="savePost()">Save Post</button>
+<body class="bg-gray-100 p-6">
+    <div id="loginScreen" class="max-w-sm mx-auto bg-white p-6 rounded-lg shadow-lg">
+        <h1 class="text-2xl font-bold text-center">🔒 Admin Login</h1>
+        <input type="password" id="password" placeholder="Enter Admin Password" class="w-full p-2 border rounded mt-2">
+        <button onclick="checkLogin()" class="w-full bg-blue-500 text-white p-2 rounded mt-2">Login</button>
+    </div>
 
-    <h2>📂 All Posts</h2>
-    <div id="admin-posts"></div>
+    <div id="adminPanel" class="hidden max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-lg">
+        <h1 class="text-3xl font-bold mb-4 text-center">📝 Blog Admin</h1>
+        <input type="text" id="title" placeholder="Blog Title" class="w-full p-2 border rounded mb-2">
+        <textarea id="content" placeholder="Blog Content" class="w-full p-2 border rounded mb-2"></textarea>
+        <div id="saveButton">
+            <button onclick="savePost()" class="w-full bg-blue-500 text-white p-2 rounded">Save Post</button>
+        </div>
+        <button onclick="savePost('draft')" class="w-full bg-gray-500 text-white p-2 rounded mt-2">Save as Draft</button>
+
+        <h2 class="text-xl font-bold mt-4">📂 All Posts</h2>
+        <div id="admin-posts" class="space-y-4 mt-2"></div>
+        <button onclick="logout()" class="w-full bg-red-500 text-white p-2 rounded mt-4">Logout</button>
+    </div>
 
     <script src="script.js"></script>
 </body>
