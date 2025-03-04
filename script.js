@@ -3,10 +3,23 @@ document.addEventListener("DOMContentLoaded", function () {
     loadAdminPosts();
 });
 
+// ✅ Firebase Authentication Check
+function checkAuth() {
+    firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+            document.getElementById("loginScreen").classList.add("hidden");
+            document.getElementById("adminPanel").classList.remove("hidden");
+        } else {
+            document.getElementById("loginScreen").classList.remove("hidden");
+            document.getElementById("adminPanel").classList.add("hidden");
+        }
+    });
+}
+
 // ✅ Save New Post (Published or Draft)
 function savePost(status = "published") {
-    let title = document.getElementById("title").value;
-    let content = document.getElementById("content").value;
+    let title = document.getElementById("title").value.trim();
+    let content = document.getElementById("content").value.trim();
     let imageInput = document.getElementById("image");
 
     if (!title || !content) {
@@ -24,113 +37,133 @@ function savePost(status = "published") {
     }
 }
 
-// ✅ Convert Image to WebP (Reduces Size)
+// ✅ Convert Image to WebP (Optimized)
 function convertToWebP(file) {
     return new Promise((resolve) => {
         let reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = function (event) {
+        reader.onload = (event) => {
             let img = new Image();
             img.src = event.target.result;
-            img.onload = function () {
+            img.onload = () => {
                 let canvas = document.createElement("canvas");
                 let ctx = canvas.getContext("2d");
                 canvas.width = img.width;
                 canvas.height = img.height;
                 ctx.drawImage(img, 0, 0);
-                resolve(canvas.toDataURL("image/webp", 0.8)); // 80% quality
+                resolve(canvas.toDataURL("image/webp", 0.8));
             };
         };
+        reader.readAsDataURL(file);
     });
 }
 
-// ✅ Store Post in LocalStorage
+// ✅ Store Post in Firebase Firestore
 function storePost(title, content, image, status) {
-    let posts = JSON.parse(localStorage.getItem("posts")) || [];
-    posts.push({ title, content, image, status });
-    localStorage.setItem("posts", JSON.stringify(posts));
+    let user = firebase.auth().currentUser;
+    if (!user) return alert("You must be logged in!");
 
-    alert(status === "draft" ? "Draft saved!" : "Post published!");
-    location.reload();
+    firebase.firestore().collection("posts").add({
+        title,
+        content,
+        image,
+        status,
+        author: user.displayName,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+    })
+    .then(() => {
+        alert(status === "draft" ? "Draft saved!" : "Post published!");
+        loadAdminPosts();
+    })
+    .catch((error) => {
+        console.error("Error saving post:", error);
+    });
 }
 
-// ✅ Load Posts in Admin Panel
+// ✅ Load Admin Posts from Firestore
 function loadAdminPosts() {
-    let posts = JSON.parse(localStorage.getItem("posts")) || [];
-    let output = posts.length === 0 ? `<p class="text-center text-gray-500">No posts yet.</p>` : "";
+    firebase.firestore().collection("posts").orderBy("timestamp", "desc")
+    .onSnapshot((snapshot) => {
+        let output = snapshot.empty 
+            ? `<p class="text-center text-gray-500">No posts yet.</p>` 
+            : "";
 
-    posts.forEach((post, index) => {
-        output += `
-            <div class="post p-4 border rounded bg-gray-50 shadow">
-                ${post.image ? `<img src="${post.image}" class="w-full h-40 object-cover rounded mb-2">` : ""}
-                <h2 class="text-lg font-bold">${post.title}</h2>
-                <p class="text-gray-700">${post.content}</p>
-                <p class="text-sm text-gray-500">Status: ${post.status}</p>
-                <div class="flex space-x-2 mt-2">
-                    <button onclick="editPost(${index})" class="bg-yellow-500 text-white px-2 py-1 rounded">Edit</button>
-                    <button onclick="deletePost(${index})" class="bg-red-500 text-white px-2 py-1 rounded">Delete</button>
-                </div>
-            </div>`;
+        snapshot.forEach((doc) => {
+            let post = doc.data();
+            let postId = doc.id;
+            output += `
+                <div class="post p-4 border rounded bg-gray-50 shadow">
+                    ${post.image ? `<img src="${post.image}" class="w-full h-40 object-cover rounded mb-2">` : ""}
+                    <h2 class="text-lg font-bold">${post.title}</h2>
+                    <p class="text-gray-700">${post.content}</p>
+                    <p class="text-sm text-gray-500">Status: ${post.status} | Author: ${post.author}</p>
+                    <div class="flex space-x-2 mt-2">
+                        <button onclick="editPost('${postId}')" class="bg-yellow-500 text-white px-2 py-1 rounded">Edit</button>
+                        <button onclick="deletePost('${postId}')" class="bg-red-500 text-white px-2 py-1 rounded">Delete</button>
+                    </div>
+                </div>`;
+        });
+
+        document.getElementById("admin-posts").innerHTML = output;
     });
-
-    document.getElementById("admin-posts").innerHTML = output;
 }
 
 // ✅ Edit Post
-function editPost(index) {
-    let posts = JSON.parse(localStorage.getItem("posts")) || [];
-    let post = posts[index];
+function editPost(postId) {
+    firebase.firestore().collection("posts").doc(postId).get()
+    .then((doc) => {
+        if (doc.exists) {
+            let post = doc.data();
+            document.getElementById("title").value = post.title;
+            document.getElementById("content").value = post.content;
 
-    document.getElementById("title").value = post.title;
-    document.getElementById("content").value = post.content;
-
-    // Preserve Image
-    document.getElementById("saveButton").innerHTML = `
-        <button onclick="updatePost(${index})" class="w-full bg-green-500 text-white p-2 rounded">Update Post</button>`;
+            document.getElementById("saveButton").innerHTML = `
+                <button onclick="updatePost('${postId}')" class="w-full bg-green-500 text-white p-2 rounded">Update Post</button>`;
+        }
+    })
+    .catch((error) => {
+        console.error("Error fetching post:", error);
+    });
 }
 
 // ✅ Update Post
-function updatePost(index) {
-    let title = document.getElementById("title").value;
-    let content = document.getElementById("content").value;
-    let posts = JSON.parse(localStorage.getItem("posts")) || [];
+function updatePost(postId) {
+    let title = document.getElementById("title").value.trim();
+    let content = document.getElementById("content").value.trim();
 
-    posts[index] = { title, content, image: posts[index].image, status: "published" };
-    localStorage.setItem("posts", JSON.stringify(posts));
-
-    alert("Post updated!");
-    location.reload();
+    firebase.firestore().collection("posts").doc(postId).update({
+        title,
+        content,
+    })
+    .then(() => {
+        alert("Post updated!");
+        loadAdminPosts();
+    })
+    .catch((error) => {
+        console.error("Error updating post:", error);
+    });
 }
 
 // ✅ Delete Post
-function deletePost(index) {
-    let posts = JSON.parse(localStorage.getItem("posts")) || [];
-    posts.splice(index, 1);
-    localStorage.setItem("posts", JSON.stringify(posts));
+function deletePost(postId) {
+    if (!confirm("Are you sure you want to delete this post?")) return;
 
-    alert("Post deleted!");
-    location.reload();
+    firebase.firestore().collection("posts").doc(postId).delete()
+    .then(() => {
+        alert("Post deleted!");
+        loadAdminPosts();
+    })
+    .catch((error) => {
+        console.error("Error deleting post:", error);
+    });
 }
 
-// ✅ Admin Login System
-function checkLogin() {
-    let password = document.getElementById("password").value;
-    if (password === "admin123") {
-        localStorage.setItem("isLoggedIn", "true");
-        location.reload();
-    } else {
-        alert("Wrong password!");
-    }
-}
-
-function checkAuth() {
-    if (localStorage.getItem("isLoggedIn") === "true") {
-        document.getElementById("loginScreen").style.display = "none";
-        document.getElementById("adminPanel").classList.remove("hidden");
-    }
-}
-
+// ✅ Admin Logout
 function logout() {
-    localStorage.removeItem("isLoggedIn");
-    location.reload();
+    firebase.auth().signOut()
+    .then(() => {
+        alert("Logged out!");
+    })
+    .catch((error) => {
+        console.error("Logout failed:", error);
+    });
 }
