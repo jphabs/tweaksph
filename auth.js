@@ -1,32 +1,40 @@
-// ✅ Import Firebase Config from `firebase-config.js`
+// ✅ Import Firebase Config
 import { firebaseConfig } from "./firebase-config.js";
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, signInWithRedirect, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-// ✅ Initialize Firebase (Only If Not Already Initialized)
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+const auth = firebase.auth();
 
-// ✅ Google Login Function
+// ✅ Email/Password Login
 document.addEventListener("DOMContentLoaded", function () {
     const loginBtn = document.getElementById("login-btn");
     const logoutBtn = document.getElementById("logout-btn");
     const userInfo = document.getElementById("user-info");
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
 
     if (loginBtn && logoutBtn && userInfo) {
         loginBtn.addEventListener("click", function () {
-            const provider = new GoogleAuthProvider();
-            
-            // 🔄 Uses Redirect for Better Mobile Support
-            signInWithRedirect(auth, provider).catch((error) => {
-                console.error("Login Error:", error.message);
-                alert("Login failed: " + error.message);
-            });
+            const email = emailInput.value;
+            const password = passwordInput.value;
+
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    console.log("Logged in:", user);
+                    userInfo.innerHTML = `Logged in as: ${user.email}`;
+                    loginBtn.style.display = "none";
+                    logoutBtn.style.display = "block";
+                })
+                .catch((error) => {
+                    console.error("Login Error:", error.message);
+                    alert("Login failed: " + error.message);
+                });
         });
 
-        // ✅ Logout Function
         logoutBtn.addEventListener("click", function () {
-            signOut(auth)
+            auth.signOut()
                 .then(() => {
                     userInfo.innerHTML = "Logged out";
                     loginBtn.style.display = "block";
@@ -41,17 +49,17 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 // ✅ Auto-Check User Login State
-onAuthStateChanged(auth, (user) => {
+auth.onAuthStateChanged((user) => {
     const userInfo = document.getElementById("user-info");
     const loginBtn = document.getElementById("login-btn");
     const logoutBtn = document.getElementById("logout-btn");
 
     if (user) {
-        if (userInfo) userInfo.innerHTML = `Logged in as: ${user.displayName}`;
+        if (userInfo) userInfo.innerHTML = `Logged in as: ${user.email}`;
         if (loginBtn) loginBtn.style.display = "none";
         if (logoutBtn) logoutBtn.style.display = "block";
-        
-        // ✅ Only Allow Admin Page Access If Logged In
+
+        // ✅ Redirect to Admin Page If Logged In
         if (window.location.pathname.includes("admin.html")) {
             console.log("User is authenticated, access granted.");
         }
@@ -60,9 +68,9 @@ onAuthStateChanged(auth, (user) => {
         if (loginBtn) loginBtn.style.display = "block";
         if (logoutBtn) logoutBtn.style.display = "none";
 
-        // 🔴 Fixes Redirect Delay (Runs BEFORE Page Loads)
+        // 🔴 Redirect If Trying to Access Admin Page Without Login
         if (window.location.pathname.includes("admin.html")) {
-            window.location.replace("index.html"); // Instant Redirect
+            window.location.replace("index.html");
         }
     }
 });
