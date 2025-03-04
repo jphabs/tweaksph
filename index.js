@@ -12,13 +12,13 @@ function loadPosts() {
     if (publishedPosts.length === 0) {
         output = `<p class="text-center text-gray-500">No blog posts available.</p>`;
     } else {
-        publishedPosts.forEach((post) => {
+        publishedPosts.forEach((post, index) => {
             output += `
                 <div class="post p-4 border rounded bg-gray-50 shadow">
                     ${post.image ? `<img src="${post.image}" class="w-full h-48 object-cover rounded mb-2" loading="lazy">` : ""}
                     <h2 class="text-xl font-bold text-gray-800">${post.title}</h2>
                     <p class="text-gray-600">${truncateText(post.content, 100)}</p>
-                    <button onclick="viewFullPost('${encodeURIComponent(post.title)}')" class="text-blue-500 mt-2">Read More</button>
+                    <button onclick="viewFullPost(${index})" class="text-blue-500 mt-2">Read More</button>
                 </div>
             `;
         });
@@ -32,8 +32,7 @@ function truncateText(text, maxLength) {
     return text.length > maxLength ? text.substring(0, maxLength) + "..." : text;
 }
 
-// ✅ View Full Post (Opens in New Page or Modal)
-function viewFullPost(title) {
-    alert("Opening full post: " + decodeURIComponent(title));
-    // You can redirect to a detailed post page or open a modal
+// ✅ View Full Post (Redirect to a New Page)
+function viewFullPost(index) {
+    window.location.href = `fullpost.html?index=${index}`;
 }

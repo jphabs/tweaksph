@@ -1,0 +1,26 @@
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let params = new URLSearchParams(window.location.search);
+        let index = params.get("index");
+
+        let posts = JSON.parse(localStorage.getItem("posts")) || [];
+        let post = posts[index];
+
+        if (post) {
+            document.getElementById("post-title").innerText = post.title;
+            document.getElementById("post-content").innerText = post.content;
+            if (post.image) {
+                document.getElementById("post-image").src = post.image;
+                document.getElementById("post-image").style.display = "block";
+            }
+        } else {
+            document.getElementById("post-container").innerHTML = "<p>Post not found.</p>";
+        }
+    });
+</script>
+
+<div id="post-container">
+    <h1 id="post-title"></h1>
+    <img id="post-image" style="display:none; max-width:100%; height:auto;" />
+    <p id="post-content"></p>
+</div>
