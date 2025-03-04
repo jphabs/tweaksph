@@ -1,11 +1,11 @@
 // ✅ Import Firebase Config from `firebase-config.js`
 import { firebaseConfig } from "./firebase-config.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, signInWithRedirect, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 // ✅ Initialize Firebase (Only If Not Already Initialized)
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-}
-const auth = firebase.auth();
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 
 // ✅ Google Login Function
 document.addEventListener("DOMContentLoaded", function () {
@@ -15,19 +15,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (loginBtn && logoutBtn && userInfo) {
         loginBtn.addEventListener("click", function () {
-            const provider = new firebase.auth.GoogleAuthProvider();
+            const provider = new GoogleAuthProvider();
             
             // 🔄 Uses Redirect for Better Mobile Support
-            auth.signInWithRedirect(provider)
-                .catch((error) => {
-                    console.error("Login Error:", error.message);
-                    alert("Login failed: " + error.message);
-                });
+            signInWithRedirect(auth, provider).catch((error) => {
+                console.error("Login Error:", error.message);
+                alert("Login failed: " + error.message);
+            });
         });
 
         // ✅ Logout Function
         logoutBtn.addEventListener("click", function () {
-            auth.signOut()
+            signOut(auth)
                 .then(() => {
                     userInfo.innerHTML = "Logged out";
                     loginBtn.style.display = "block";
@@ -42,7 +41,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 // ✅ Auto-Check User Login State
-auth.onAuthStateChanged((user) => {
+onAuthStateChanged(auth, (user) => {
     const userInfo = document.getElementById("user-info");
     const loginBtn = document.getElementById("login-btn");
     const logoutBtn = document.getElementById("logout-btn");
