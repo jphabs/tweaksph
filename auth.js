@@ -1,13 +1,7 @@
-// ✅ Import Firebase Config
-import { firebaseConfig } from "./firebase-config.js";
+// ✅ Import Firebase Modules Properly
+import { auth } from "./firebase-config.js";
+import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-// ✅ Initialize Firebase (If Not Already Initialized)
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-}
-const auth = firebase.auth();
-
-// ✅ Email/Password Login
 document.addEventListener("DOMContentLoaded", function () {
     const loginBtn = document.getElementById("login-btn");
     const logoutBtn = document.getElementById("logout-btn");
@@ -25,7 +19,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 return;
             }
 
-            auth.signInWithEmailAndPassword(email, password)
+            // ✅ Correct Firebase Authentication Method
+            signInWithEmailAndPassword(auth, email, password)
                 .then((userCredential) => {
                     const user = userCredential.user;
                     console.log("✅ Logged in:", user);
@@ -38,7 +33,8 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         logoutBtn.addEventListener("click", function () {
-            auth.signOut()
+            // ✅ Correct Logout Method
+            signOut(auth)
                 .then(() => {
                     console.log("✅ Logged out.");
                     updateUI(null);
@@ -52,7 +48,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 // ✅ Auto-Check User Login State
-auth.onAuthStateChanged((user) => {
+onAuthStateChanged(auth, (user) => {
     updateUI(user);
 });
 
