@@ -2,49 +2,64 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
-<!-- ✅ Firebase Config (Deferred to Load After SDKs) -->
+<!-- ✅ Firebase Config -->
 <script defer src="firebase-config.js"></script>
 
 <!-- ✅ Blog Post Loader -->
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        // Ensure Firebase is loaded
+        // ✅ Ensure Firebase is loaded before proceeding
         if (typeof firebase === "undefined") {
-            console.error("Firebase not loaded! Check script order.");
+            console.error("❌ Firebase SDK not loaded! Check script order.");
+            document.getElementById("post-container").innerHTML = "<p class='text-red-500 text-center'>❌ Error: Firebase failed to load.</p>";
             return;
         }
 
+        const db = firebase.firestore();
+        const postContainer = document.getElementById("post-container");
+        const postTitle = document.getElementById("post-title");
+        const postContent = document.getElementById("post-content");
+        const postImage = document.getElementById("post-image");
+
+        // ✅ Get Post ID from URL
         let urlParams = new URLSearchParams(window.location.search);
         let postId = urlParams.get("id");
 
         if (!postId) {
-            document.getElementById("post-container").innerHTML = "<p class='text-center text-gray-500'>Post not found.</p>";
+            postContainer.innerHTML = "<p class='text-center text-gray-500'>⚠️ Post not found.</p>";
             return;
         }
 
-        // ✅ Wait for Firebase to be ready
-        setTimeout(() => {
-            const db = firebase.firestore();
-            db.collection("posts").doc(postId).get()
-                .then((doc) => {
-                    if (!doc.exists) {
-                        document.getElementById("post-container").innerHTML = "<p class='text-center text-gray-500'>Post not found.</p>";
-                        return;
-                    }
+        // ✅ Show Loading Message Before Fetching Data
+        postContainer.innerHTML = "<p class='text-center text-gray-500'>⏳ Loading post...</p>";
 
-                    let post = doc.data();
-                    document.title = post.title + " - Blog";
-                    document.getElementById("post-title").innerText = post.title;
-                    document.getElementById("post-content").innerHTML = post.content.replace(/\n/g, "<br>");
+        // ✅ Fetch Post from Firestore
+        db.collection("posts").doc(postId).get()
+            .then((doc) => {
+                if (!doc.exists) {
+                    postContainer.innerHTML = "<p class='text-center text-gray-500'>📭 Post not found.</p>";
+                    return;
+                }
 
-                    if (post.image) {
-                        document.getElementById("post-image").src = post.image;
-                        document.getElementById("post-image").style.display = "block";
-                    }
-                })
-                .catch((error) => {
-                    console.error("Error loading post:", error);
-                });
-        }, 500); // Small delay to ensure Firebase loads
+                let post = doc.data();
+                document.title = `${post.title} - Blog`;
+
+                // ✅ Display Post Data
+                postTitle.innerText = post.title;
+                postContent.innerHTML = post.content.replace(/\n/g, "<br>"); // Preserve line breaks
+
+                if (post.image) {
+                    postImage.src = post.image;
+                    postImage.style.display = "block";
+                    postImage.loading = "lazy"; // ✅ Optimize image loading
+                }
+
+                // ✅ Remove Loading State After Content Appears
+                postContainer.innerHTML = "";
+            })
+            .catch((error) => {
+                console.error("❌ Error loading post:", error);
+                postContainer.innerHTML = "<p class='text-red-500 text-center'>❌ Failed to load post. Try again later.</p>";
+            });
     });
 </script>
