@@ -1,14 +1,13 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // (Removed the check for window.firebase)
-
-    // Use global firebase.auth() (Firebase SDK loaded via CDN)
-    const auth = firebase.auth();
+    // Removed the check for window.firebase
+    
+    const auth = firebase.auth(); // Use global firebase.auth() provided by the CDN
     const loginBtn = document.getElementById("email-login-btn");
     const logoutBtn = document.getElementById("logout-btn");
     const emailInput = document.getElementById("email");
     const passwordInput = document.getElementById("password");
 
-    // Function to log errors to a visible element (if needed)
+    // Function to log errors to a visible element (if present)
     function logError(message) {
         const errorLog = document.getElementById("error-log");
         if (errorLog) {
