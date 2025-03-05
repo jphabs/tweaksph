@@ -1,7 +1,6 @@
 alert("auth.js loaded");
+
 document.addEventListener("DOMContentLoaded", () => {
-    // Removed the check for window.firebase
-    
     const auth = firebase.auth(); // Use global firebase.auth() provided by the CDN
     const loginBtn = document.getElementById("email-login-btn");
     const logoutBtn = document.getElementById("logout-btn");
