@@ -4,13 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TweaksPH Blog</title>
-  <script src="https://cdn.tailwindcss.com"></script> <!-- Tailwind CSS -->
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js"></script>
-  <!-- Optionally load Firebase Config if using auth on the homepage -->
-  <script src="firebase-config.js"></script>
+  
+  <!-- ✅ Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- ✅ Firebase SDKs (Using COMPAT Versions for Consistency) -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+
+  <!-- ✅ Firebase Config (Deferred to Load AFTER SDKs) -->
+  <script defer src="firebase-config.js"></script>
 </head>
 <body class="bg-gray-100 p-6 flex justify-center items-center min-h-screen">
   <div class="max-w-2xl w-full bg-white p-6 rounded-lg shadow-lg">
@@ -19,15 +24,18 @@
       <button id="logout-btn" class="bg-red-500 text-white px-4 py-2 rounded hidden">Logout</button>
     </div>
     <p id="user-info" class="text-center text-gray-700 mb-4"></p>
+
     <h1 class="text-3xl font-bold mb-4 text-center">TweaksPH Blog</h1>
     <h2 class="text-2xl font-bold mt-8 mb-4 text-center">📢 Latest Blog Posts</h2>
+
     <!-- Blog Posts Container -->
     <div id="blog-posts" class="space-y-4">
       <div class="text-center text-gray-500">⏳ Loading posts...</div>
     </div>
   </div>
-  <!-- Load Auth & Homepage Functions -->
-  <script src="auth.js"></script>
-  <script src="index.js"></script>
+
+  <!-- ✅ Load Auth First, Then Homepage Functions -->
+  <script defer src="auth.js"></script>
+  <script defer src="index.js"></script>
 </body>
 </html>
