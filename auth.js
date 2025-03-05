@@ -1,3 +1,4 @@
+alert("auth.js loaded");
 document.addEventListener("DOMContentLoaded", () => {
     // Removed the check for window.firebase
     
