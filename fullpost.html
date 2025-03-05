@@ -1,38 +1,33 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Blog Post</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body>
-  <div id="post-container" class="post p-4 bg-white rounded-lg shadow-lg max-w-2xl mx-auto my-8">
-    <h1 id="post-title" class="text-3xl font-bold text-center mb-4">Loading...</h1>
-    <img id="post-image" style="display:none; width:100%; max-height:400px; object-fit:cover; border-radius:8px;" alt="Blog Image">
-    <div id="post-content" class="text-gray-700 mt-4"></div>
-    <a href="index.html" class="block mt-4 text-blue-500 hover:underline text-center">⬅ Back to Blog</a>
-  </div>
-
-  <script>
+<script>
     document.addEventListener("DOMContentLoaded", function () {
-      let urlParams = new URLSearchParams(window.location.search);
-      let index = urlParams.get("index");
+        let urlParams = new URLSearchParams(window.location.search);
+        let postId = urlParams.get("id");
 
-      let posts = JSON.parse(localStorage.getItem("posts")) || [];
-      if (index !== null && posts[index]) {
-        document.title = posts[index].title + " - Blog";
-        document.getElementById("post-title").innerText = posts[index].title;
-        document.getElementById("post-content").innerHTML = posts[index].content.replace(/\n/g, "<br>");
-        if (posts[index].image) {
-          document.getElementById("post-image").src = posts[index].image;
-          document.getElementById("post-image").style.display = "block";
+        if (!postId) {
+            document.getElementById("post-container").innerHTML = "<p class='text-center text-gray-500'>Post not found.</p>";
+            return;
         }
-      } else {
-        document.getElementById("post-container").innerHTML = "<p class='text-center text-gray-500'>Post not found.</p>";
-      }
+
+        const db = firebase.firestore();
+        db.collection("posts").doc(postId).get()
+            .then((doc) => {
+                if (!doc.exists) {
+                    document.getElementById("post-container").innerHTML = "<p class='text-center text-gray-500'>Post not found.</p>";
+                    return;
+                }
+
+                let post = doc.data();
+                document.title = post.title + " - Blog";
+                document.getElementById("post-title").innerText = post.title;
+                document.getElementById("post-content").innerHTML = post.content.replace(/\n/g, "<br>");
+
+                if (post.image) {
+                    document.getElementById("post-image").src = post.image;
+                    document.getElementById("post-image").style.display = "block";
+                }
+            })
+            .catch((error) => {
+                console.error("Error loading post:", error);
+            });
     });
-  </script>
-</body>
-</html>
+</script>

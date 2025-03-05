@@ -1,9 +1,14 @@
 document.addEventListener("DOMContentLoaded", function () {
+    if (typeof firebase === "undefined") {
+        alert("Firebase not loaded! Check script order.");
+        return;
+    }
+
     checkAuth();
     loadAdminPosts();
 });
 
-// ✅ Firebase Authentication Check
+// ✅ Check Admin Authentication
 function checkAuth() {
     firebase.auth().onAuthStateChanged((user) => {
         if (user) {
@@ -16,7 +21,7 @@ function checkAuth() {
     });
 }
 
-// ✅ Save New Post (Published or Draft)
+// ✅ Save New Post
 function savePost(status = "published") {
     let title = document.getElementById("title").value.trim();
     let content = document.getElementById("content").value.trim();
@@ -37,7 +42,7 @@ function savePost(status = "published") {
     }
 }
 
-// ✅ Convert Image to WebP (Optimized)
+// ✅ Convert Image to WebP Format
 function convertToWebP(file) {
     return new Promise((resolve) => {
         let reader = new FileReader();
@@ -57,7 +62,7 @@ function convertToWebP(file) {
     });
 }
 
-// ✅ Store Post in Firebase Firestore
+// ✅ Store Post in Firestore
 function storePost(title, content, image, status) {
     let user = firebase.auth().currentUser;
     if (!user) return alert("You must be logged in!");
@@ -67,7 +72,7 @@ function storePost(title, content, image, status) {
         content,
         image,
         status,
-        author: user.displayName,
+        author: user.displayName || "Admin",
         timestamp: firebase.firestore.FieldValue.serverTimestamp(),
     })
     .then(() => {
@@ -79,7 +84,7 @@ function storePost(title, content, image, status) {
     });
 }
 
-// ✅ Load Admin Posts from Firestore
+// ✅ Load Admin Posts
 function loadAdminPosts() {
     firebase.firestore().collection("posts").orderBy("timestamp", "desc")
     .onSnapshot((snapshot) => {
@@ -102,41 +107,6 @@ function loadAdminPosts() {
                 </div>`;
         });
         document.getElementById("admin-posts").innerHTML = output;
-    });
-}
-
-// ✅ Edit Post
-function editPost(postId) {
-    firebase.firestore().collection("posts").doc(postId).get()
-    .then((doc) => {
-        if (doc.exists) {
-            let post = doc.data();
-            document.getElementById("title").value = post.title;
-            document.getElementById("content").value = post.content;
-            document.getElementById("saveButton").innerHTML = `
-                <button onclick="updatePost('${postId}')" class="w-full bg-green-500 text-white p-2 rounded">Update Post</button>`;
-        }
-    })
-    .catch((error) => {
-        console.error("Error fetching post:", error);
-    });
-}
-
-// ✅ Update Post
-function updatePost(postId) {
-    let title = document.getElementById("title").value.trim();
-    let content = document.getElementById("content").value.trim();
-
-    firebase.firestore().collection("posts").doc(postId).update({
-        title,
-        content,
-    })
-    .then(() => {
-        alert("Post updated!");
-        loadAdminPosts();
-    })
-    .catch((error) => {
-        console.error("Error updating post:", error);
     });
 }
 
