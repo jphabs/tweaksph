@@ -48,24 +48,24 @@ document.addEventListener("DOMContentLoaded", () => {
         updateUI(user);
     });
 
-    // ✅ Update UI & Redirect if Not Logged In
+    // ✅ Update UI Based on Auth State
     function updateUI(user) {
+        const userInfo = document.getElementById("user-info");
         const loginScreen = document.getElementById("loginScreen");
         const adminPanel = document.getElementById("adminPanel");
-        const userInfo = document.getElementById("user-info");
 
         if (user) {
-            userInfo.innerHTML = `✅ Logged in as: ${user.email}`;
-            loginScreen.style.display = "none";
-            adminPanel.style.display = "block";
+            if (userInfo) userInfo.innerHTML = `✅ Logged in as: ${user.email}`;
+            if (loginScreen) loginScreen.style.display = "none";
+            if (adminPanel) adminPanel.style.display = "block";
         } else {
-            userInfo.innerHTML = "🔒 Not logged in";
-            loginScreen.style.display = "block";
-            adminPanel.style.display = "none";
+            if (userInfo) userInfo.innerHTML = "🔒 Not logged in";
+            if (loginScreen) loginScreen.style.display = "block";
+            if (adminPanel) adminPanel.style.display = "none";
 
-            // 🔴 Redirect Only If On Admin Page
+            // 🔴 Redirect Only If On Admin Page (use absolute path)
             if (window.location.pathname.includes("tweaksph/admin.html")) {
-                window.location.href = "tweaksph/index.html"; // ✅ Redirect to Home
+                window.location.href = "/tweaksph/index.html"; // ✅ Absolute path redirect
             }
         }
     }
