@@ -64,8 +64,8 @@ document.addEventListener("DOMContentLoaded", () => {
             adminPanel.style.display = "none";
 
             // 🔴 Redirect Only If On Admin Page
-            if (window.location.pathname.includes("admin.html")) {
-                window.location.href = "index.html"; // ✅ Redirect to Home
+            if (window.location.pathname.includes("tweaksph/admin.html")) {
+                window.location.href = "tweaksph/index.html"; // ✅ Redirect to Home
             }
         }
     }
