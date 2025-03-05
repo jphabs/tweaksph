@@ -1,5 +1,19 @@
+<!-- ✅ Firebase SDKs (Load Before Script) -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+<!-- ✅ Firebase Config (Deferred to Load After SDKs) -->
+<script defer src="firebase-config.js"></script>
+
+<!-- ✅ Blog Post Loader -->
 <script>
     document.addEventListener("DOMContentLoaded", function () {
+        // Ensure Firebase is loaded
+        if (typeof firebase === "undefined") {
+            console.error("Firebase not loaded! Check script order.");
+            return;
+        }
+
         let urlParams = new URLSearchParams(window.location.search);
         let postId = urlParams.get("id");
 
@@ -8,26 +22,29 @@
             return;
         }
 
-        const db = firebase.firestore();
-        db.collection("posts").doc(postId).get()
-            .then((doc) => {
-                if (!doc.exists) {
-                    document.getElementById("post-container").innerHTML = "<p class='text-center text-gray-500'>Post not found.</p>";
-                    return;
-                }
+        // ✅ Wait for Firebase to be ready
+        setTimeout(() => {
+            const db = firebase.firestore();
+            db.collection("posts").doc(postId).get()
+                .then((doc) => {
+                    if (!doc.exists) {
+                        document.getElementById("post-container").innerHTML = "<p class='text-center text-gray-500'>Post not found.</p>";
+                        return;
+                    }
 
-                let post = doc.data();
-                document.title = post.title + " - Blog";
-                document.getElementById("post-title").innerText = post.title;
-                document.getElementById("post-content").innerHTML = post.content.replace(/\n/g, "<br>");
+                    let post = doc.data();
+                    document.title = post.title + " - Blog";
+                    document.getElementById("post-title").innerText = post.title;
+                    document.getElementById("post-content").innerHTML = post.content.replace(/\n/g, "<br>");
 
-                if (post.image) {
-                    document.getElementById("post-image").src = post.image;
-                    document.getElementById("post-image").style.display = "block";
-                }
-            })
-            .catch((error) => {
-                console.error("Error loading post:", error);
-            });
+                    if (post.image) {
+                        document.getElementById("post-image").src = post.image;
+                        document.getElementById("post-image").style.display = "block";
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error loading post:", error);
+                });
+        }, 500); // Small delay to ensure Firebase loads
     });
 </script>
