@@ -1,18 +1,14 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // Ensure Firebase is Loaded
-    if (!window.firebase) {
-        console.error("❌ Firebase not loaded! Check your Firebase config.");
-        logError("Firebase not loaded! Check your Firebase config.");
-        return;
-    }
-    
-    const auth = firebase.auth(); // Use global firebase.auth()
+    // (Removed the check for window.firebase)
+
+    // Use global firebase.auth() (Firebase SDK loaded via CDN)
+    const auth = firebase.auth();
     const loginBtn = document.getElementById("email-login-btn");
     const logoutBtn = document.getElementById("logout-btn");
     const emailInput = document.getElementById("email");
     const passwordInput = document.getElementById("password");
 
-    // Function to log errors to a visible element
+    // Function to log errors to a visible element (if needed)
     function logError(message) {
         const errorLog = document.getElementById("error-log");
         if (errorLog) {
@@ -75,7 +71,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (loginScreen) loginScreen.style.display = "block";
             if (adminPanel) adminPanel.style.display = "none";
 
-            // Redirect Only If On Admin Page (use absolute path)
+            // Redirect Only If On Admin Page (using absolute path)
             if (window.location.pathname.includes("tweaksph/admin.html")) {
                 window.location.href = "/tweaksph/index.html";
             }
