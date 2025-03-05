@@ -1,5 +1,7 @@
+// ✅ Import Firebase Config & Auth Functions
 import { auth } from "./firebase-config.js";
-import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { signInWithEmailAndPassword, onAuthStateChanged, signOut } 
+from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 document.addEventListener("DOMContentLoaded", function () {
     const loginBtn = document.getElementById("email-login-btn");
@@ -10,6 +12,12 @@ document.addEventListener("DOMContentLoaded", function () {
     const loginScreen = document.getElementById("loginScreen");
     const adminPanel = document.getElementById("adminPanel");
 
+    // ✅ Firebase Auth State Listener
+    onAuthStateChanged(auth, (user) => {
+        updateUI(user);
+    });
+
+    // ✅ Email/Password Login
     if (loginBtn) {
         loginBtn.addEventListener("click", function () {
             const email = emailInput.value.trim();
@@ -33,6 +41,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    // ✅ Logout Function
     if (logoutBtn) {
         logoutBtn.addEventListener("click", function () {
             signOut(auth)
@@ -47,10 +56,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    onAuthStateChanged(auth, (user) => {
-        updateUI(user);
-    });
-
+    // ✅ Update UI Based on Auth State
     function updateUI(user) {
         if (user) {
             if (userInfo) userInfo.innerHTML = `✅ Logged in as: ${user.email}`;
