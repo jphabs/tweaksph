@@ -1,15 +1,17 @@
 import { auth } from "./firebase-config.js";
-import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-document.addEventListener("DOMContentLoaded", () => {
-    const loginBtn = document.getElementById("login-btn");
+document.addEventListener("DOMContentLoaded", function () {
+    const loginBtn = document.getElementById("email-login-btn");
     const logoutBtn = document.getElementById("logout-btn");
+    const userInfo = document.getElementById("user-info");
     const emailInput = document.getElementById("email");
     const passwordInput = document.getElementById("password");
-    const userInfo = document.getElementById("user-info");
+    const loginScreen = document.getElementById("loginScreen");
+    const adminPanel = document.getElementById("adminPanel");
 
-    if (loginBtn && logoutBtn && emailInput && passwordInput) {
-        loginBtn.addEventListener("click", async () => {
+    if (loginBtn) {
+        loginBtn.addEventListener("click", function () {
             const email = emailInput.value.trim();
             const password = passwordInput.value;
 
@@ -18,57 +20,46 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            try {
-                const userCredential = await signInWithEmailAndPassword(auth, email, password);
-                console.log("✅ Logged in:", userCredential.user);
-                updateUI(userCredential.user);
-            } catch (error) {
-                console.error("❌ Login Error:", error.message);
-                alert("Login failed: " + error.message);
-            }
-        });
-
-        logoutBtn.addEventListener("click", async () => {
-            try {
-                await signOut(auth);
-                console.log("✅ Logged out.");
-                updateUI(null);
-            } catch (error) {
-                console.error("❌ Logout Error:", error.message);
-                alert("Logout failed: " + error.message);
-            }
+            signInWithEmailAndPassword(auth, email, password)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    console.log("✅ Logged in:", user);
+                    updateUI(user);
+                })
+                .catch((error) => {
+                    console.error("❌ Login Error:", error.message);
+                    alert("Login failed: " + error.message);
+                });
         });
     }
-});
 
-// ✅ Auto-Check User Login State
-onAuthStateChanged(auth, (user) => {
-    updateUI(user);
-});
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", function () {
+            signOut(auth)
+                .then(() => {
+                    console.log("✅ Logged out.");
+                    updateUI(null);
+                })
+                .catch((error) => {
+                    console.error("❌ Logout Error:", error.message);
+                    alert("Logout failed: " + error.message);
+                });
+        });
+    }
 
-// ✅ Update UI Based on Auth State
-function updateUI(user) {
-    const userInfo = document.getElementById("user-info");
-    const loginBtn = document.getElementById("login-btn");
-    const logoutBtn = document.getElementById("logout-btn");
+    onAuthStateChanged(auth, (user) => {
+        updateUI(user);
+    });
 
-    if (user) {
-        if (userInfo) userInfo.innerHTML = `✅ Logged in as: ${user.email}`;
-        if (loginBtn) loginBtn.style.display = "none";
-        if (logoutBtn) logoutBtn.style.display = "block";
-
-        // ✅ Redirect to Admin Page If Logged In
-        if (window.location.pathname.includes("/tweaksph/admin.html")) {
-            console.log("🔓 User is authenticated, access granted.");
-        }
-    } else {
-        if (userInfo) userInfo.innerHTML = "🔒 Not logged in";
-        if (loginBtn) loginBtn.style.display = "block";
-        if (logoutBtn) logoutBtn.style.display = "none";
-
-        // 🔴 Redirect If Trying to Access Admin Page Without Login
-        if (window.location.pathname.includes("/tweaksph/admin.html")) {
-            window.location.replace("/tweaksph/index.html");
+    function updateUI(user) {
+        if (user) {
+            if (userInfo) userInfo.innerHTML = `✅ Logged in as: ${user.email}`;
+            if (loginScreen) loginScreen.style.display = "none";
+            if (adminPanel) adminPanel.style.display = "block";
+        } else {
+            if (userInfo) userInfo.innerHTML = "🔒 Not logged in";
+            if (loginScreen) loginScreen.style.display = "block";
+            if (adminPanel) adminPanel.style.display = "none";
         }
     }
-}
+});
