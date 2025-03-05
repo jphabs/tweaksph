@@ -1,3 +1,8 @@
+// index.js (Module Version)
+// (This file assumes Firebase is already initialized via firebase-config.js)
+
+import { firebaseConfig } from "./firebase-config.js";  // Optional import if needed elsewhere
+
 document.addEventListener("DOMContentLoaded", function () {
     loadPosts();
 });
@@ -37,10 +42,3 @@ function truncateText(text, maxLength) {
 function viewFullPost(postId) {
     window.location.href = `fullpost.html?id=${postId}`;
 }
-
-// ✅ Firebase Config (Use External Config File Instead)
-import { firebaseConfig } from "./firebase-config.js"; 
-
-// ✅ Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
