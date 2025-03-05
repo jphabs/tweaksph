@@ -75,9 +75,9 @@ document.addEventListener("DOMContentLoaded", () => {
             if (loginScreen) loginScreen.style.display = "block";
             if (adminPanel) adminPanel.style.display = "none";
 
-            // Redirect if on admin page without login
+            // Redirect Only If On Admin Page (use absolute path)
             if (window.location.pathname.includes("tweaksph/admin.html")) {
-                window.location.href = "/tweaksph/index.html"; // Absolute path redirect
+                window.location.href = "/tweaksph/index.html";
             }
         }
     }
