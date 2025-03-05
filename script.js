@@ -7,11 +7,11 @@ document.addEventListener("DOMContentLoaded", function () {
 function checkAuth() {
     firebase.auth().onAuthStateChanged((user) => {
         if (user) {
-            document.getElementById("loginScreen").classList.add("hidden");
-            document.getElementById("adminPanel").classList.remove("hidden");
+            document.getElementById("loginScreen").style.display = "none";
+            document.getElementById("adminPanel").style.display = "block";
         } else {
-            document.getElementById("loginScreen").classList.remove("hidden");
-            document.getElementById("adminPanel").classList.add("hidden");
+            document.getElementById("loginScreen").style.display = "block";
+            document.getElementById("adminPanel").style.display = "none";
         }
     });
 }
@@ -86,7 +86,6 @@ function loadAdminPosts() {
         let output = snapshot.empty 
             ? `<p class="text-center text-gray-500">No posts yet.</p>` 
             : "";
-
         snapshot.forEach((doc) => {
             let post = doc.data();
             let postId = doc.id;
@@ -102,7 +101,6 @@ function loadAdminPosts() {
                     </div>
                 </div>`;
         });
-
         document.getElementById("admin-posts").innerHTML = output;
     });
 }
@@ -115,7 +113,6 @@ function editPost(postId) {
             let post = doc.data();
             document.getElementById("title").value = post.title;
             document.getElementById("content").value = post.content;
-
             document.getElementById("saveButton").innerHTML = `
                 <button onclick="updatePost('${postId}')" class="w-full bg-green-500 text-white p-2 rounded">Update Post</button>`;
         }

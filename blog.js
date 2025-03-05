@@ -13,7 +13,7 @@ function loadBlogPosts() {
                             ${post.title}
                         </a>
                     </h2>
-                    <p class="text-gray-600">${post.content.substring(0, 100)}...</p> <!-- Show preview -->
+                    <p class="text-gray-600">${post.content.substring(0, 100)}...</p>
                 </div>`;
         });
     }

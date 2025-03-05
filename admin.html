@@ -1,66 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TweaksPH Blog Admin</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- ✅ Load Firebase SDK First -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
-    
-    <!-- ✅ Firebase Config (Make Sure This File is Set Up Correctly) -->
-    <script src="firebase-config.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TweaksPH Blog Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Load Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
+  <!-- Initialize Firebase -->
+  <script src="firebase-config.js"></script>
 </head>
 <body class="bg-gray-100 p-6 flex justify-center items-center min-h-screen">
 
-    <!-- 🔒 Login Screen -->
-    <div id="loginScreen" class="max-w-sm w-full bg-white p-6 rounded-lg shadow-lg">
-        <h1 class="text-2xl font-bold text-center">🔒 Admin Login</h1>
-        
-        <!-- Email/Password Login -->
-        <input type="email" id="email" placeholder="Enter your email" class="w-full p-2 border rounded mt-3">
-        <input type="password" id="password" placeholder="Enter your password" class="w-full p-2 border rounded mt-2">
-        <button id="email-login-btn" class="w-full bg-green-500 hover:bg-green-600 text-white p-2 rounded mt-3">
-            Login with Email
-        </button>
+  <!-- Login Screen -->
+  <div id="loginScreen" class="max-w-sm w-full bg-white p-6 rounded-lg shadow-lg">
+    <h1 class="text-2xl font-bold text-center">🔒 Admin Login</h1>
+    <!-- Email/Password Login -->
+    <input type="email" id="email" placeholder="Enter your email" class="w-full p-2 border rounded mt-3">
+    <input type="password" id="password" placeholder="Enter your password" class="w-full p-2 border rounded mt-2">
+    <button id="email-login-btn" class="w-full bg-green-500 hover:bg-green-600 text-white p-2 rounded mt-3">
+      Login with Email
+    </button>
+  </div>
+
+  <!-- Admin Panel -->
+  <div id="adminPanel" style="display: none;" class="max-w-2xl w-full bg-white p-6 rounded-lg shadow-lg">
+    <h1 class="text-3xl font-bold mb-4 text-center">📝 Blog Admin</h1>
+    <p id="user-info" class="text-center text-gray-700"></p>
+    <!-- Image Upload -->
+    <label for="image" class="block text-sm font-medium">Upload Image</label>
+    <input type="file" id="image" accept="image/*" class="border p-2 rounded w-full mt-1">
+    <!-- Blog Title -->
+    <label for="title" class="block text-sm font-medium mt-3">Blog Title</label>
+    <input type="text" id="title" placeholder="Enter blog title..." class="w-full p-2 border rounded mt-1">
+    <!-- Blog Content -->
+    <label for="content" class="block text-sm font-medium mt-3">Blog Content</label>
+    <textarea id="content" placeholder="Write your blog content..." class="w-full p-2 border rounded mt-1 h-40"></textarea>
+    <!-- Save Buttons -->
+    <div class="flex flex-col gap-2 mt-3">
+      <button onclick="savePost()" class="w-full bg-blue-500 hover:bg-blue-600 text-white p-2 rounded">Save Post</button>
+      <button onclick="savePost('draft')" class="w-full bg-gray-500 hover:bg-gray-600 text-white p-2 rounded">Save as Draft</button>
     </div>
+    <!-- Blog Posts List -->
+    <h2 class="text-xl font-bold mt-6">📂 All Posts</h2>
+    <div id="admin-posts" class="space-y-4 mt-2"></div>
+    <!-- Logout Button -->
+    <button id="logout-btn" class="w-full bg-red-500 hover:bg-red-600 text-white p-2 rounded mt-4">Logout</button>
+  </div>
 
-    <!-- 📝 Admin Panel -->
-    <div id="adminPanel" style="display: none;" class="max-w-2xl w-full bg-white p-6 rounded-lg shadow-lg">
-        <h1 class="text-3xl font-bold mb-4 text-center">📝 Blog Admin</h1>
-        <p id="user-info" class="text-center text-gray-700"></p>
-
-        <!-- Image Upload -->
-        <label for="image" class="block text-sm font-medium">Upload Image</label>
-        <input type="file" id="image" accept="image/*" class="border p-2 rounded w-full mt-1">
-
-        <!-- Blog Title -->
-        <label for="title" class="block text-sm font-medium mt-3">Blog Title</label>
-        <input type="text" id="title" placeholder="Enter blog title..." class="w-full p-2 border rounded mt-1">
-
-        <!-- Blog Content -->
-        <label for="content" class="block text-sm font-medium mt-3">Blog Content</label>
-        <textarea id="content" placeholder="Write your blog content..." class="w-full p-2 border rounded mt-1 h-40"></textarea>
-
-        <!-- Save Buttons -->
-        <div class="flex flex-col gap-2 mt-3">
-            <button onclick="savePost()" class="w-full bg-blue-500 hover:bg-blue-600 text-white p-2 rounded">Save Post</button>
-            <button onclick="savePost('draft')" class="w-full bg-gray-500 hover:bg-gray-600 text-white p-2 rounded">Save as Draft</button>
-        </div>
-
-        <!-- Blog Posts List -->
-        <h2 class="text-xl font-bold mt-6">📂 All Posts</h2>
-        <div id="admin-posts" class="space-y-4 mt-2"></div>
-
-        <!-- Logout Button -->
-        <button id="logout-btn" class="w-full bg-red-500 hover:bg-red-600 text-white p-2 rounded mt-4">Logout</button>
-    </div>
-
-    <!-- ✅ Load Auth & Other Scripts Last -->
-    <script src="auth.js"></script>
-    <script src="script.js"></script>
-
+  <!-- Load Auth & Admin Functions -->
+  <script src="auth.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
